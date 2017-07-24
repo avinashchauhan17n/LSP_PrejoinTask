@@ -30,7 +30,7 @@ int main(void){
         }
 /***************Writing buffer with size Blocksize given by user for Bockcount number of times**********/
 	while (block_count>0){
-           if ((retVALUE=(fwrite(buffer,sizeof(buffer),1,filetowriteDATA))) == 0){
+           if ((retVALUE=(fwrite(buffer,1,block_size,filetowriteDATA))) == 0){
                printf("FIle Write Error\n");
                EXIT_FAILURE;
               }
