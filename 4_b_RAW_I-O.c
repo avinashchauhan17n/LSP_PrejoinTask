@@ -7,10 +7,12 @@
 #define MODE O_CREAT|O_WRONLY
 #define PERMISSION 644
 int main(void) {
+        /***************local variables declaration ends here*****************************************************/
         int fdWRITE,retVALUE;
         char *buffer;
         int blockSIZE, blockCOUNT;
-
+        /***************local variables declaration ends here*****************************************************/
+        
         /***************User Inputs for block_size and block count starts*****************************************/
         printf("Enter the Block size\n");
         scanf("%d",&blockSIZE);
@@ -27,13 +29,13 @@ int main(void) {
                 printf("Memory not Allocated:error");
                 EXIT_FAILURE;
         }
-
+        
         if( (fdWRITE = open(FILETOWRITE,MODE,PERMISSION)) == -1) {
                 printf("Open Error= %d\n", errno);
                 perror("FILETOWRITE");
                 EXIT_FAILURE;
         }
-
+        /***************Writing buffer with size Blocksize given by user for Bockcount number of times**********/
         while( blockCOUNT > 0) {
                 if( (retVALUE = write(fdWRITE, buffer, blockSIZE)) == -1) {
                         printf("Error:Write = %d\n", errno);
