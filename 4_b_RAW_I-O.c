@@ -13,6 +13,9 @@ int main(void) {
         int fdWrite,retValue;
         char *buffer;
         int blockSize, blockCount;
+	double TimeDifference;
+	clock_t start;
+	clock_t end;
         /***************local variables declaration ends here*****************************************************/
         
         /***************User Inputs for block_size and block count starts*****************************************/
@@ -37,7 +40,7 @@ int main(void) {
                 EXIT_FAILURE;
         }
         /***************Writing buffer with size Blocksize given by user for Bockcount number of times**********/
-        clock_t start= clock();                  // starting the clock call to count the event
+        start= clock();                  // starting the clock call to count the event
         while( blockCount > 0) {
                 if( (retValue = write(fdWrite, buffer, blockSize)) == -1) {
                      printf("Error:Write = %s\n",strerror(errno)); 
@@ -45,10 +48,10 @@ int main(void) {
                 }
         	blockCount--;
         }
-	clock_t end=clock();                   //clock event ends here
+	end=clock();                   //clock event ends here
 	/***************Writing buffer operation ends here*****************************************************/
 
-        double timeDiff=(double)(end-start);   
+        timeDiff=(double)(end-start);   
         timeDiff/=CLOCKS_PER_SEC;              // taking diff of operation for buff write in terms of clocks/sec
         printf("Time taken for write cycle: %lf\n",timeDiff);
         EXIT_SUCCESS;
