@@ -5,11 +5,13 @@
 int main(void){
 
 /***************local variables declaration start here****************************************************/
-	FILE *filetowriteDATA;
+	FILE *FileToWriteData;
 	int block_size,block_count;
- 	int retVALUE;
+ 	int retValue;
  	char *buffer;
-
+	double TimeDifference;
+	clock_t start;
+	clock_t end;
 /***************local variables declaration ends here*****************************************************/
 
 /***************User Inputs for block_size and block count starts*****************************************/
@@ -23,18 +25,23 @@ int main(void){
         EXIT_FAILURE;
     	}
 /***************User Inputs for block_size and block count ends******************************************/
-
-	if ((filetowriteDATA=fopen(SOURCE,"w"))==NULL){
+	if ((FileToWriteData=fopen(SOURCE,"w"))==NULL){
 		printf("Error in opening file.txt\n");
 		EXIT_FAILURE;
         }
 /***************Writing buffer with size Blocksize given by user for Bockcount number of times**********/
+	start = clock();                    // clock event start 
 	while (block_count>0){
-           if ((retVALUE=(fwrite(buffer,1,block_size,filetowriteDATA))) == 0){
+           if ((retValue=(fwrite(buffer,1,block_size,FileToWriteData))) == 0){
                printf("FIle Write Error\n");
                EXIT_FAILURE;
               }
 	       block_count--;
        	}
+	end = clock();                    // clock event ends
+/***********************************write buffer operation complete***********************************/
+	TimeDifference = (double)(end-start);
+	printf("Write Operation time taken %lf \n",TimeDifference/CLOCKS_PER_SEC;
+	       
 	EXIT_SUCCESS;
 }
