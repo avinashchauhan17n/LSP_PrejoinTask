@@ -23,36 +23,34 @@ int main(void) {
     return EXIT_FAILURE;
   }
   fdWrite = open("bar", WMODE, PERM);
-  if(-1 == fdWrite) {
+  if(-1 == fdWrite) { 
     printf("Write Error:%s\n",strerror(errno));
     return EXIT_FAILURE;
-    }
+  }
 
-	/*Retriving Input file size and adjusting output file size in accordance with Input file size*/
+/*Retriving Input file size and adjusting output file size in accordance with Input file size*/
   fileSize = lseek(fdRead, 0, SEEK_END);
-	if(-1 == ftruncate(fdWrite, fileSize)) {
+  if(-1 == ftruncate(fdWrite, fileSize)) {
     printf("Ftruncate Error:%s\n",strerror(errno));
     return EXIT_FAILURE;
-	}
+  }
 
-	/* Create a memory map for the read and write files */
-	read = mmap(NULL, fileSize, PROT_READ, MAP_PRIVATE, fdRead, 0);
+/* Create a memory map for the read and write files */
+  read = mmap(NULL, fileSize, PROT_READ, MAP_PRIVATE, fdRead, 0);
   write = mmap(NULL, fileSize, PROT_WRITE | PROT_READ, MAP_SHARED, fdWrite, 0);
-
-	if( (MAP_FAILED == read) || (MAP_FAILED == write ) )  {
+  if( (MAP_FAILED == read) || (MAP_FAILED == write ) )  {
     printf("MMAP Error:%s\n",strerror(errno));
     return EXIT_FAILURE;
-	}
+  }
 
-	/* Copying contents */
-	memcpy(write, read, fileSize);
-
-	/* writing to file from memory t*/
-	if(-1 == msync(write, fileSize, MS_SYNC) ) {
+/* Copying contents */
+  memcpy(write, read, fileSize);
+/* writing to file from memory t*/
+  if(-1 == msync(write, fileSize, MS_SYNC) ) {
     printf("msync Error:%s\n",strerror(errno));
     return EXIT_FAILURE;
-	}
+  }
 
-	return EXIT_SUCCESS;
+ return EXIT_SUCCESS;
 
 }
