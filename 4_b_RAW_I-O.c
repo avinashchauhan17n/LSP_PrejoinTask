@@ -25,7 +25,7 @@ int main(void) {
         scanf("%d",&blockCount);
 
         if ( (buffer = (char *)malloc(blockSize*sizeof(char))) == NULL){
-                printf("Error in Allocating desired buffer size\n");
+               	printf("Error in Allocating desired buffer size\n");
                 EXIT_FAILURE;
         }
         /***************User Inputs for block_size and block count ends******************************************/
