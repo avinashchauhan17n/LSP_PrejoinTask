@@ -78,7 +78,10 @@ int main(void){
     printf("Error:readwrite %s\n",strerror(errno));
     return EXIT_FAILURE;
   }
-
+/* writing the modified contents into actual data file */
+  if(-1 == (retValue=write(fd,&d1,readSize))) {
+    printf("write error %s \n",strerror(errno));
+}
 
 return EXIT_SUCCESS;
 }
