@@ -9,48 +9,44 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <sys/types.h>
-
+#define EVENTMAX 100
+#define FILESIZE NAME_MAX+1
 #define handle_error(x) printf(#x"%s\n",strerror(errno))
 
 int  main(void) {
   FILE *file;
   int notifyHandle;
   int i=0;
-
-  /* Linux specified max filename is: NAME_MAX */
-  char line[NAME_MAX+1]; 
-
-  /* Handle 100 events at one go      */
-  int watchHandles[100];
-  char eventBuffer[100*sizeof(struct inotify_event) + NAME_MAX+1];
+  char buffer[FILESIZE]; 
+  
+  /* creating watch handles to watch number of events */
+  int watchHandles[EVENTMAX];
+  char eventBuffer[EVENTMAX*sizeof(struct inotify_event) + FILESIZE];
   char *p;
   struct inotify_event *eventPtr;
-  
 
   /* notifyHandle for watching file system events */
   if(-1 ==  (notifyHandle = inotify_init())) {
     handle_error("inotify_init()");
   }
-
   /* Open monitor.conf file */
   if(NULL == (file = fopen("monitor.conf", "r"))) {
     handle_error("monitor.conf fopen");
   }
-
+	i=0;
   /* create individual watchHandles and add it to notifyHandle*/
-  while(fgets(line, NAME_MAX+1, file) != NULL) {
+  while(NULL != fgets(buffer, FILESIZE, file)) {
     /* Remove \n from the line read */
-    line[strlen(line)-1] = '\0';
-    if( (watchHandles[i++] = inotify_add_watch(notifyHandle, line, IN_DELETE_SELF | IN_MODIFY)) == -1) {
-      handle_error(line);
+    buffer[strlen(buffer)-1] = '\0';
+    if(-1 == (watchHandles[i++] = inotify_add_watch(notifyHandle, buffer, IN_DELETE_SELF | IN_MODIFY))) {
+      handle_error(buffer);
     }
   }
-
+  
   while(1) {
     if(-1 == (i = read(notifyHandle, eventBuffer, sizeof(eventBuffer)))) {
       handle_error("read notifyHandle");
-    }
-    
+    }    
     p = eventBuffer;
     while(p < eventBuffer+i) {
       eventPtr = (struct inotify_event *)p;
