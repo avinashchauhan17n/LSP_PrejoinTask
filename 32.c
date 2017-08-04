@@ -13,14 +13,15 @@
 #define BUF_SIZE 1024
 
 int main() {
-  /* creating a socket */
-  //int socket(int domain, int type, int protocol);
+  
+    /* local variables declaration */
     int sock,fd;
     socklen_t clientLen;
     struct sockaddr_in server, client;
     char buffer[BUF_SIZE];
     int retValue;
-
+  
+    /* creating a socket */
     if(-1 == (sock=socket(AF_INET,SOCK_STREAM,0))) {
       ERROR("socket creation");
       return EXIT_FAILURE;
@@ -30,7 +31,6 @@ int main() {
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = htonl(INADDR_ANY);
     server.sin_port = htons(PORT);
-
     if(-1 == bind(sock, (struct sockaddr *)&server, sizeof(server))) {
       ERROR("bind error");
     }
@@ -40,13 +40,16 @@ int main() {
       ERROR("LISTEN ERROR");
     }
     printf("lISTENING ON PORT...... %d\n",PORT);
-      /* accepts connection , blocks till connection is established */
+     
+  /* accepts connection , blocks till connection is established */
       while(1) {
-      /* accepting the connection on establishment */
+        /* accepting the connection on establishment */
         clientLen = sizeof(client);
         if(-1 == (fd=accept(sock, (struct sockaddr *)&client, (socklen_t *)&clientLen))) {
           ERROR("LIST ERROR");
+          return EXIT_FAILURE;
         }
+  
         /*Handle connection once connection established */
         printf("got new connection from client %d\n",client.sin_addr.s_addr);
 
@@ -56,7 +59,6 @@ int main() {
         }
         close(fd);
         printf("Closing connection...............\n");
-
       }
-      return EXIT_SUCCESS;
+return EXIT_SUCCESS;
 }
