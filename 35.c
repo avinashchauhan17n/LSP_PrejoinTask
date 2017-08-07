@@ -21,12 +21,12 @@ int main(void) {
   int sock;
   struct addrinfo hints;
   struct addrinfo *results, *rp;
-  int count, retval, success=0;
+  int count, retval, flag=0;
   char c;
 
   memset(&hints, 0, sizeof(struct addrinfo));
-  hints.ai_family = AF_UNSPEC; /* try both IPv4 and IPv6 */
-  hints.ai_socktype = SOCK_STREAM; /* only tcp connections */
+  hints.ai_family = AF_UNSPEC; /*validate both IPv4 and IPv6 */
+  hints.ai_socktype = SOCK_STREAM; 
 
   if( (retval = getaddrinfo("localhost", "rot13", &hints, &results)) != 0) {
        ERROR("addres error");
@@ -34,14 +34,13 @@ int main(void) {
 
   rp = results;
 
-  while(rp != NULL) {
-    /* Try to create socket */
+  while (rp != NULL) {
+    /* first create socket */
     if( (sock=socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol)) != -1) {
-      /* Success creating socket, try to connect */
+      /* if Success, then connect */
       if (connect(sock, (struct sockaddr *)rp->ai_addr, rp->ai_addrlen) != -1) {
-         /* Success:ful connect to the server, break out of the loop */
-          printf("Successfully connected to %s:%s\n", "rot13", "TCP");
-          success = 1;
+          printf("....................connected to rot13:TCP.................");
+          flag = 1;
           rp = NULL;
       }
       else {
@@ -50,15 +49,14 @@ int main(void) {
           rp = rp->ai_next;
           close(sock);
       }
-    }
-    else {
+    } else {
       /* Unable to create socket, move to next connection */
       printf("Unable to create socket, move to the next\n");
       rp = rp->ai_next;
-    }
+      }
   }
 
-  if (success == 0) {
+  if (flag == 0) {
       ERROR("fail connect");
   }
   /* Free the results */
@@ -70,12 +68,15 @@ int main(void) {
     if( (count = read(0, &c, 1)) == -1) {
       ERROR("read");
     }
+    
     if (write(sock, &c, 1) == -1) {
         ERROR("write");
     }
+    
     if( (count = read(sock, &c, 1)) == -1) {
         ERROR("read");
     }
+    
     if (write(1, &c, 1) == -1) {
         ERROR("write");
     }
