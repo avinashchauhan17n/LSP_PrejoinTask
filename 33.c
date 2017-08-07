@@ -1,87 +1,98 @@
 #include <stdio.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <sys/socket.h>
-#include <errno.h>
-#include <sys/types.h>
 #include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <arpa/inet.h>
+#include <errno.h>
 
-#define ERROR(msg) printf(#msg":%s\n",strerror(errno))
+#define ERROR(msg) printf(#msg"%s\n",strerror(errno));exit(0)
+
 #define PORT 8000
 #define BUF_SIZE 1024
 
-void rotated(char *s);
+void rot13(char *);
+void connectionHandler(int fd);
 
-int main() {
-  /* creating a socket */
-  //int socket(int domain, int type, int protocol);
-    int sock,fd;
-    socklen_t clientLen;
-    struct sockaddr_in server, client;
-    char c;
-    int retValue;
+int main(void) {
 
-    if(-1 == (sock=socket(AF_INET,SOCK_STREAM,0))) {
-      ERROR("socket creation");
-      return EXIT_FAILURE;
+  int sock, fd;
+  socklen_t clientLen;
+  struct sockaddr_in server, client;
+  char c;
+  int readBytes;
+
+  /* Creating a socket */
+  if ( (sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+     ERROR("socket");
+  }
+
+  /* Binding Socket to Port 8000 */
+  server.sin_family = AF_INET;        // IPV4 family
+  server.sin_addr.s_addr = htonl(INADDR_ANY);
+  server.sin_port = htons(PORT);
+
+  if (bind(sock, (struct sockaddr *)&server, (socklen_t)sizeof(server)) == -1) {
+     ERROR("bind");
+  }
+
+  /* Setup Listen Queue */
+  if (listen(sock, 5) == -1) {
+     ERROR("listen");
+  }
+  printf("listening on port........ %d\n", PORT);
+
+  while(1) {
+
+    /* Accept Connections, blocks till connection is established */
+    clientLen = sizeof(client);
+    if( (fd = accept(sock, (struct sockaddr *)&client, (socklen_t *)&clientLen)) == -1) {
+        ERROR("accept");
     }
 
-    /* bind socket to PORT 8000*/
-    server.sin_family = AF_INET;
-    server.sin_addr.s_addr = htonl(INADDR_ANY);
-    server.sin_port = htons(PORT);
+    /* Handling Connection */
+    printf("New connection from client*****: %d\n", client.sin_addr.s_addr);
+    do {
 
-    if(-1 == bind(sock, (struct sockaddr *)&server, sizeof(server))) {
-      ERROR("bind error");
-    }
-
-    /* LISTEN queue */
-    if(-1 == (listen(sock ,5))) {
-      ERROR("LISTEN ERROR");
-    }
-    printf("lISTENING ON PORT...... %d\n",PORT);
-      /* accepts connection , blocks till connection is established */
-      while(1) {
-      /* accepting the connection on establishment */
-        clientLen = sizeof(client);
-        if(-1 == (fd=accept(sock, (struct sockaddr *)&client, (socklen_t *)&clientLen))) {
-          ERROR("LIST ERROR");
-        }
-        /*Handle connection once connection established */
-        printf("got new connection from client %d\n",client.sin_addr.s_addr);
-
-        /* reading input from buffer */
-        int count=0;
-
-        while( (retValue = (read(fd,&c,1)) > 0 ) ) {
-
-                rotated(&c);
-                printf("%d,",c);
-		fflush(stdout);
-                write(fd,&c,1);
-                count++;
-
-        }
-
-        close(fd);
-        printf("Closing connection...............\n");
-
+       if ( (readBytes = read(fd, &c, 1)) == -1) {
+          ERROR("read");
+       }
+       rot13(&c);
+       if (write(fd, &c, readBytes) == -1) {
+          ERROR("write");
       }
-      return EXIT_SUCCESS;
+    } while(readBytes) ;
+
+    /* Very important to close file descriptors */
+    printf("Client closed connection, so server closing connection\n");
+    close(fd);
+  }
+
+  return EXIT_SUCCESS;
 }
 
-void rotated(char * s) {
+void rot13(char *input) {
 
-        if(*s < 'n')
-          *s= (*s+13);
-	if((*s==26) || (*s==23)) {
-	*s=0;
-	}
-        else
-          *s= (*s-13);
+  char token[3] = {' ', '\r', '\n'};
+  /* sending back CR and NL */
+  if (*input == token[0]) {
+      *input = token[0];
+  }
 
+  else if (*input == token[1]) {
+          *input = token[1];
+  }
 
+  else if (*input == token[2]) {
+          *input = token[2];
+	  
+  /* rotating alphabets */
+  } else {
+	if ( (*input <= 'm') && (*input >= 'a')) {
+        *input = *input+13;
+        } else {
+          *input = *input-13;
+          }
+    }
 }
