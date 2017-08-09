@@ -28,7 +28,7 @@ int main(void) {
 /* setup socket to broadcast*/
   if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (char *)&flag, sizeof(flag)) == -1) {
       ERROR("setting socket failed\n");
- }
+  }
  /* setup socket to reuse port so that multiple process can bind */
   if (setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, (char *)&flag, sizeof(flag)) == -1) {
       ERROR("socket setup for multiple reuse port failed");
@@ -43,19 +43,18 @@ int main(void) {
   }
 
   /*forking a child process here to listen broadcast message*/
-  if(fork() == 0) { /* child */
-    while(1) {
+  if (fork() == 0) { /* child */
+      while(1) {
       /* Receive Broadcast Messages */
-      clientAddrLen = sizeof(struct sockaddr_in);
-      if( (count = recvfrom(sock, buff, 1024, 0, (struct sockaddr*)&client, &clientAddrLen)) == -1) {
-           ERROR("recvfrom");
-      }
-
+        clientAddrLen = sizeof(struct sockaddr_in);
+        if( (count = recvfrom(sock, buff, 1024, 0, (struct sockaddr*)&client, &clientAddrLen)) == -1) {
+            ERROR("recvfrom");
+        }
       /* Print them on the stdout */
-      if(write(1, buff, count) == -1) {
-         ERROR("write");
+        if (write(1, buff, count) == -1) {
+            ERROR("write");
+        }
       }
-    }
   } else {
     /* Parent */
     while(1) {
